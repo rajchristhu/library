@@ -22,6 +22,9 @@ class CustomView : RelativeLayout, View.OnDragListener {
     var context1: Context? = null
     var scalevalue: Double? = null
     var optionlistView: ListView? = null
+    var submit: Button? = null
+    var reset: Button? = null
+    var reveal: Button? = null
     var mainholder: AbsoluteLayout? = null
 
 
@@ -42,9 +45,34 @@ class CustomView : RelativeLayout, View.OnDragListener {
 
     private fun init() {
         View.inflate(context, R.layout.dragframe, this)
+//        AndroidInjection.inject(this)
         optionlistView = findViewById<ListView>(R.id.list)
         mainholder = findViewById(R.id.c)
         image = findViewById(R.id.image)
+        submit = findViewById(R.id.btnSubmit)
+        reset = findViewById(R.id.btnReset)
+        reveal = findViewById(R.id.btnReveal)
+        submit!!.setOnClickListener {
+            submit!!.isEnabled=false
+            reveal!!.isEnabled = true
+            reset!!.isEnabled = true
+
+            submit()
+        }
+
+        reset!!.setOnClickListener {
+            submit!!.isEnabled=false
+            reveal!!.isEnabled = false
+            reset!!.isEnabled = false
+
+            reset()
+        }
+        reveal!!.setOnClickListener {
+            submit!!.isEnabled=false
+            reveal!!.isEnabled = false
+            reset!!.isEnabled = true
+            reveal()
+        }
     }
 
     fun setValue(optionslist: ArrayList<Optionmodel>) {
@@ -79,6 +107,7 @@ class CustomView : RelativeLayout, View.OnDragListener {
 
     fun setImage(image: Int) {
         imageResource = image
+
     }
 
     @SuppressLint("InflateParams", "ClickableViewAccessibility")
@@ -88,8 +117,8 @@ class CustomView : RelativeLayout, View.OnDragListener {
         observer.addOnGlobalLayoutListener {
             val headerLayoutWidth = mainholder!!.getWidth()
             val r: Double
-            val a = 600
-            val b = 482
+            val a = 500
+            val b = 500
             val p: Double
             r = (a / b).toDouble()
             p = (height / a).toDouble()
@@ -172,8 +201,6 @@ class CustomView : RelativeLayout, View.OnDragListener {
         }
     }
 
-    //Adapter
-
     //TouchListener
     internal inner class ChoiceTouchListener(private val pos: Int) : View.OnTouchListener {
         @SuppressLint("NewApi", "ClickableViewAccessibility")
@@ -245,12 +272,11 @@ class CustomView : RelativeLayout, View.OnDragListener {
             DragEvent.ACTION_DROP -> {
                 val dropTarget = v.findViewById(R.id.option) as TextView
                 val text = dropTarget.text
-                if (text != null)
-                    options.add(Optionmodel(dropTarget.text.toString(), 0, 0, 0, 0))
+                if (text!="") options.add(Optionmodel(dropTarget.text.toString(), 0, 0, 0, 0))
                 dropTarget.text = optionmodel.name
                 options.remove(optionmodel)
                 if (optionlistView != null) {
-                    optionlistView!!.setAdapter(OptionAdapter(options))
+                    optionlistView!!.adapter = OptionAdapter(options)
 
                 }
                 (v.findViewById(R.id.option) as TextView)
@@ -263,6 +289,15 @@ class CustomView : RelativeLayout, View.OnDragListener {
                                         .getColor(R.color.primary_text_default_material_light))
                 (v.findViewById(R.id.option) as TextView).text = (optionmodel.name)
                 (v.findViewById(R.id.option) as TextView).visibility = View.VISIBLE
+                Toast.makeText(context1, "option" + "count=" + options.size, Toast.LENGTH_SHORT).show()
+                if (options.size==0)
+                {
+                    submit!!.isEnabled=true
+                }
+                else
+                {
+                    submit!!.isEnabled=false
+                }
 
             }
             DragEvent.ACTION_DRAG_ENDED ->
