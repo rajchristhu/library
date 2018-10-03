@@ -105,7 +105,7 @@ class CustomView : RelativeLayout, View.OnDragListener {
         }
     }
 
-    fun setImage(image: Int) {
+    fun setImages(image: Int) {
         imageResource = image
 
     }
